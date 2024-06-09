@@ -1,0 +1,9 @@
+services:
+  grpc_base:
+    build:
+      dockerfile: ./Dockerfile
+    image: grpc_base
+      
+  dev:
+    image: grpc_base
+    command: ["/usr/bin/bash"]
