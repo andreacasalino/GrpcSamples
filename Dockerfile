@@ -1,11 +1,15 @@
-FROM grpc/cxx
+# FROM grpc/cxx
+FROM ubuntu
 
-# RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-# RUN apt-get update && apt install -y build-essential && rm -rf /var/lib/apt/lists/*
-# RUN apt-get update && apt install -y python3
-# RUN apt-get update && apt-get -y install ninja-build
-# RUN apt-get update && apt-get -y install cmake
-# RUN apt-get update && apt-get -y install git
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt install -y build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt install -y python3
+RUN apt-get update && apt-get -y install ninja-build
+RUN apt-get update && apt-get -y install cmake
+RUN apt-get update && apt-get -y install git
+
+RUN apt-get update && apt install -y protobuf-compiler
+RUN apt-get update && apt install -y autoconf libtool pkg-config
 
 ####################################################################################################
 ####################################################################################################

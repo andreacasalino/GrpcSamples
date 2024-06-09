@@ -12,7 +12,7 @@ endfunction()
 # find_package(Threads REQUIRED)
 
 # set(FETCHCONTENT_QUIET OFF)
-# FETCH_LIB(gRPC v1.64.1 https://github.com/grpc/grpc)
+FETCH_LIB(gRPC v1.64.1 https://github.com/grpc/grpc)
 
 find_package(gRPC REQUIRED)
 # target_link_libraries(myproto
