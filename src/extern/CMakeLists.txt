@@ -9,5 +9,5 @@ function(FETCH_LIB LIB_NAME TAG URL)
     FetchContent_MakeAvailable(${LIB_NAME})
 endfunction()
 
-find_package(Threads)
-include(${CMAKE_CURRENT_SOURCE_DIR}/prepareGRPC.cmake)
+# find_package(Threads)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/prepareGRPC.cmake)

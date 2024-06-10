@@ -10,3 +10,4 @@ project(GrpExperiment)
 
 add_subdirectory(extern)
 add_subdirectory(proto)
+add_subdirectory(app)
