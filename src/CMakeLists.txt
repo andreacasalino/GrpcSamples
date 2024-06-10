@@ -8,6 +8,6 @@ project(GrpExperiment)
 # find_package(PythonLibs 3 REQUIRED)
 # set(PYTHON_CMD "${Python3_EXECUTABLE}")
 
-add_subdirectory(extern)
+# add_subdirectory(extern)
 add_subdirectory(proto)
 add_subdirectory(app)
