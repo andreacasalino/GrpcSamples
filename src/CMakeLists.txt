@@ -4,11 +4,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(GrpExperiment)
 
-# add_subdirectory(extern)
-
 # find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 # find_package(PythonLibs 3 REQUIRED)
 # set(PYTHON_CMD "${Python3_EXECUTABLE}")
 
-# add_subdirectory(extern)
-
+add_subdirectory(extern)
+add_subdirectory(messages)

@@ -1,15 +1,40 @@
-# FROM grpc/cxx
 FROM ubuntu
 
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt install -y build-essential && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt install -y python3
-RUN apt-get update && apt-get -y install ninja-build
-RUN apt-get update && apt-get -y install cmake
-RUN apt-get update && apt-get -y install git
+# https://github.com/plusangel/grpc-cplusplus-ubuntu18/blob/master/Dockerfile
 
-RUN apt-get update && apt install -y protobuf-compiler
-RUN apt-get update && apt install -y autoconf libtool pkg-config
+RUN apt-get update && apt-get install -y \
+build-essential \
+autoconf \
+libtool \
+git \
+pkg-config \
+libz-dev \
+curl \
+automake \
+make \
+unzip \
+cmake \
+python3 \
+ninja-build \
+&& apt-get clean
+
+# install protobuf first, then grpc
+# RUN apt install -y \
+# protobuf-compiler
+
+RUN git clone --recurse-submodules -b v1.64.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc 
+WORKDIR "/grpc"
+RUN mkdir -p cmake/build
+WORKDIR "/grpc/cmake/build"
+RUN cmake \
+-G Ninja \
+# -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+-DgRPC_INSTALL=ON \
+-DgRPC_BUILD_TESTS=OFF \
+../..
+RUN ninja -j 4
+RUN ninja install
+WORKDIR "/"
 
 ####################################################################################################
 ####################################################################################################

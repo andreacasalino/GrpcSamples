@@ -9,18 +9,9 @@ function(FETCH_LIB LIB_NAME TAG URL)
     FetchContent_MakeAvailable(${LIB_NAME})
 endfunction()
 
-# find_package(Threads REQUIRED)
-
-# set(FETCHCONTENT_QUIET OFF)
-FETCH_LIB(gRPC v1.64.1 https://github.com/grpc/grpc)
-
-find_package(gRPC REQUIRED)
-# target_link_libraries(myproto
-#     PUBLIC
-#         protobuf::libprotobuf
-#         gRPC::grpc
-#         gRPC::grpc++
-# )
+find_package(protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+find_package(Threads)
 
 # if(BUILD_TESTS)
 #     if (WIN32)
