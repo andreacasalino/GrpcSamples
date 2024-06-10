@@ -16,15 +16,15 @@ public:
 };
 
 int main() {
-    std::string server_address("0.0.0.0:50051");
     FooServiceImpl service;
 
+    std::string server_address{"0.0.0.0:50051"};
     ::grpc::ServerBuilder builder;
-    // builder.AddListeningPort(server_address, ::grpc::InsecureServerCredentials());
-    // builder.RegisterService(&service);
-    // std::unique_ptr<Server> server(builder.BuildAndStart());
-    // std::cout << "Server listening on " << server_address << std::endl;
-    // server->Wait();
+    builder.AddListeningPort(server_address, ::grpc::InsecureServerCredentials());
+    builder.RegisterService(&service);
+    std::unique_ptr<::grpc::Server> server(builder.BuildAndStart());
+    std::cout << "Server listening on " << server_address << std::endl;
+    server->Wait();
 
     return EXIT_SUCCESS;
 }
