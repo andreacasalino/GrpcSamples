@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package srv;
 
-message Foo {
-    string name = 1;
-}
+import "Foo.proto"; 
 
 message FooRequest {
     string name = 1;

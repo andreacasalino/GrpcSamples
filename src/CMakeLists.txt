@@ -9,4 +9,4 @@ project(GrpExperiment)
 # set(PYTHON_CMD "${Python3_EXECUTABLE}")
 
 add_subdirectory(extern)
-add_subdirectory(messages)
+add_subdirectory(proto)

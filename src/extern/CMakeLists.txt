@@ -9,16 +9,5 @@ function(FETCH_LIB LIB_NAME TAG URL)
     FetchContent_MakeAvailable(${LIB_NAME})
 endfunction()
 
-find_package(protobuf CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
 find_package(Threads)
-
-# if(BUILD_TESTS)
-#     if (WIN32)
-#     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-#     endif (WIN32)
-#     FETCH_LIB(googletest v1.13.0 https://github.com/google/googletest.git)
-# endif()
-
-# set(BUILD_MinimalCppSocket_SAMPLES OFF CACHE BOOL "" FORCE)
-# FETCH_LIB(minimal-socket v.3.0 https://github.com/andreacasalino/Minimal-Socket)
+include(${CMAKE_CURRENT_SOURCE_DIR}/prepareGRPC.cmake)
