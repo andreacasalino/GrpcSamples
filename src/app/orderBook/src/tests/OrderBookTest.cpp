@@ -5,8 +5,8 @@ using namespace book::testing;
 
 TEST_F(OrderBookFixture, one_order) {
     std::string expected = R"(
-5 10 foo first | - | -
-5 10 foo first | 5 10 foo second | -
+5 10 foo first|-|-
+5 10 foo first|5 10 foo second|-
 )";
     setUpExpectedHistory(history_from_string(expected));
 
