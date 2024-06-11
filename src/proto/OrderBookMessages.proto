@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package srv;
+
+message Ids {
+  string userId = 1;
+  string orderId = 2;
+}
+
+message Order {
+  bool side = 1;
+  int price = 2;
+  int quantity = 3;
+}
+
+message Trade {
+  Ids buyIds = 1;
+  bool buyConsumed = 2;
+  Ids sellIds = 3;
+  bool sellConsumed = 4;
+  int price = 5;
+  int quantity = 6;
+}
+
+message TOB {
+  Ids buyIds = 1;
+  int buyPrice = 2;
+  int buyQuantity = 3;
+  Ids sellIds = 4;
+  int sellPrice = 5;
+  int sellQuantity = 6;
+}

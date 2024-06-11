@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "OrderBookMessages.proto";
+
+message NewOrderRequest {
+  Ids ids = 1;
+  Order order = 2;
+}
+
+message CancelOrderRequest {
+  Ids ids = 1;
+}
+
+service OrderBookService {
+  rpc acceptOrder(NewOrderRequest) returns (google.protobuf.Empty);
+  rpc acceptOrder(CancelOrderRequest) returns (google.protobuf.Empty);
+  # TODO stream of trades
+  # TODO stream of TOB
+}
