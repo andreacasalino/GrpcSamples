@@ -10,7 +10,9 @@
 
 namespace book {
 struct BookSide {
-BookSide(bool s) : side{s} {}
+BookSide(bool s) 
+: side{s}
+, orders{s ? [](std::uint32_t a, std::uint32_t b){ return a > b; } : [](std::uint32_t a, std::uint32_t b){ return a < b; }} {}
 
 bool side;
 
@@ -18,7 +20,8 @@ struct Info {
 std::uint32_t quantity;
 srv::Ids ids;
 };
-using Container = std::multimap<std::uint32_t, Info>;
+using Comparison = std::function<bool(std::uint32_t, std::uint32_t)>;
+using Container = std::multimap<std::uint32_t, Info, Comparison>;
 Container orders;
 };
 
