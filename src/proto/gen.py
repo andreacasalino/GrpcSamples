@@ -7,8 +7,14 @@ def resetFolder(path):
     os.makedirs(path)
     return path
 
-class Paths:
-    ROOT = os.path.dirname(__file__)
+def clear_protos(folder):
+    def isProto(filename):
+        for ext in ['.pb.h', '.pb.cc']:
+            if not filename.find(ext) == -1:
+                return True
+        return False
+    for filename in filter(lambda filename : isProto(filename), os.listdir(folder)):
+        os.remove(filename)
 
 def for_each_proto():
     folder_abs = os.path.join(Paths.ROOT, Paths.ROOT)
@@ -17,8 +23,12 @@ def for_each_proto():
             continue
         yield os.path.join(folder_abs, name)
 
+class Paths:
+    ROOT = os.path.dirname(__file__)
+
 def main(grpc_plugin, build_folder):
     build_folder = resetFolder(os.path.join(Paths.ROOT, 'build')) if build_folder == None else build_folder
+    # clear_protos(build_folder)
     protos = ' '.join([proto for proto in for_each_proto()])
     frmt = {
         'OUT':build_folder,

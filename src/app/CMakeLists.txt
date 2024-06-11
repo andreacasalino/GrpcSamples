@@ -1,1 +1,1 @@
-add_subdirectory(FooServer)
+add_subdirectory(echo)

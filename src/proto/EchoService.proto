@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package srv;
+
+message EchoRequest {
+  string name = 1;
+}
+
+message EchoResponse {
+  string payload = 1;
+}
+
+service EchoService {
+  rpc respondEcho(EchoRequest) returns (EchoResponse);
+}

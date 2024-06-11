@@ -1,11 +1,11 @@
 #include <grpcpp/grpcpp.h>
 
-#include <FooService.grpc.pb.h>
+#include <EchoService.grpc.pb.h>
 
 class GreeterClient {
 public:
   GreeterClient(std::shared_ptr<::grpc::Channel> channel)
-      : stub_(srv::FooService::NewStub(channel)) {}
+      : stub_(srv::EchoService::NewStub(channel)) {}
 
   std::string request() {
     srv::FooRequest request;
@@ -22,7 +22,7 @@ public:
   }
 
 private:
-  std::unique_ptr<srv::FooService::Stub> stub_;
+  std::unique_ptr<srv::EchoService::Stub> stub_;
 };
 
 int main() {

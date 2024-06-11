@@ -8,7 +8,10 @@ public:
                               ,const ::srv::FooRequest* request
                               , ::srv::FooResponse* response) final {
         auto* payload = response->mutable_payload();
-        payload->set_name("Here is a name for you");
+        std::string resp = "Hi ";
+        resp += request->name();
+        resp += " from the server";
+        payload->set_name(std::move(resp));
         return ::grpc::Status::OK;
     }
 };

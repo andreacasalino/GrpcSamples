@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package srv;
-
-message Foo {
-    string name = 1;
-}

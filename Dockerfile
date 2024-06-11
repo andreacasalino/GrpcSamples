@@ -18,17 +18,12 @@ python3 \
 ninja-build \
 && apt-get clean
 
-# install protobuf first, then grpc
-# RUN apt install -y \
-# protobuf-compiler
-
 RUN git clone --recurse-submodules -b v1.64.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc 
 WORKDIR "/grpc"
 RUN mkdir -p cmake/build
 WORKDIR "/grpc/cmake/build"
 RUN cmake \
 -G Ninja \
-# -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
 -DgRPC_INSTALL=ON \
 -DgRPC_BUILD_TESTS=OFF \
 ../..
@@ -43,8 +38,12 @@ ENV PATH="/usr/local/bin:${PATH}"
 ####################################################################################################
 
 ENV IS_FROM_DOCKER 1
-# EXPOSE 44322
-# EXPOSE 44323
+ENV ECHO_SERVER_PORT 44332
+ENV ORDER_BOOK_SERVER_PORT 44333
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
 
 # COPY ./src  ./src
 
