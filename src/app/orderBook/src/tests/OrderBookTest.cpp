@@ -49,3 +49,13 @@ TEST_F(OrderBookFixture, one_order_per_side_with_2_partial_fill) {
     newOrder(make_order(false, 5, 5, make_ids("foo", "third")));
 }
 
+TEST_F(OrderBookFixture, one_order_then_cancel) {
+    std::string expected = R"(
+5 10 foo first|-|-
+-|-|-
+)";
+    setUpExpectedHistory(history_from_string(expected));
+
+    newOrder(make_order(true, 5, 10, make_ids("foo", "first")));
+    cancelOrder(make_ids("foo", "first"));
+}
