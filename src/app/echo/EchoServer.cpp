@@ -1,13 +1,14 @@
 #include <grpcpp/grpcpp.h>
 
 #include <Config.h>
+#include <Logger.h>
 
 #include <EchoService.grpc.pb.h>
-
 
 class EchoServiceImpl final : public srv::EchoService::Service {
 public:
     ::grpc::Status respondEcho(::grpc::ServerContext* context, const ::srv::EchoRequest* request, ::srv::EchoResponse* response) final {
+        LOGI("Responding to", request->name());
         std::string resp = "Hi ";
         resp += request->name();
         resp += " from the server";
@@ -20,6 +21,7 @@ int main() {
     EchoServiceImpl service;
 
     std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
+    LOGI("Binding port at:", server_address);
     ::grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, ::grpc::InsecureServerCredentials());
     builder.RegisterService(&service);

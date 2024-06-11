@@ -16,7 +16,10 @@ int getPortFromEnv(const std::string& port_env_name) {
 }
 
 std::string getAddressFromEnv(const std::string& host, const std::string& port_env_name) {
-  return host + std::to_string(getPortFromEnv(port_env_name));
+  std::string res = host;
+  res += ":";
+  res += std::to_string(getPortFromEnv(port_env_name));
+  return res;
 }
 
 std::string getComponentIp(const std::string &name) {

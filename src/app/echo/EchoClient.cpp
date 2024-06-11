@@ -1,6 +1,7 @@
 #include <grpcpp/grpcpp.h>
 
 #include <Config.h>
+#include <Logger.h>
 
 #include <EchoService.grpc.pb.h>
 
@@ -29,9 +30,10 @@ private:
 
 int main() {
   std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
+  LOGI("Connecting to:", server_address);
   GreeterClient client{::grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials())};
 
-  std::cout << client.request() << std::endl;
+  LOGI("Responded:", client.request());
 
   return EXIT_SUCCESS;
 }
