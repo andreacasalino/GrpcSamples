@@ -28,7 +28,7 @@ std::vector<std::string_view> split(const StringT& line) {
     while (pos < line.size()) {
         auto next = line.find(Sep, pos);
         if(next == std::string::npos) {
-            res.emplace_back(line.data() + pos);
+            res.emplace_back(line.data() + pos, line.size() - pos);
             break;
         }
         res.emplace_back(line.data() + pos, next - pos);
@@ -45,8 +45,8 @@ std::uint32_t my_atoi(const std::string_view& subject) {
 void parse_ids(srv::Ids& recipient, std::vector<std::string_view>::const_iterator giver) {
     auto convert = [&giver]() {
         const auto& buffer = *giver;
-        return std::string{buffer.data(), buffer.size()};
         ++giver;
+        return std::string{buffer.data(), buffer.size()};
     };
     recipient.set_userid(convert());
     recipient.set_orderid(convert());
