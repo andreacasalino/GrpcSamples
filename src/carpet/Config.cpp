@@ -2,18 +2,19 @@
 #include <Error.h>
 
 #include <arpa/inet.h>
-#include <cstdlib>
-#include <filesystem>
-#include <fstream>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <optional>
-#include <sstream>
-#include <stdio.h>
-#include <string_view>
 #include <sys/socket.h>
 
 namespace carpet {
+int getPortFromEnv(const std::string& server_name) {
+  const auto* str = std::getenv(server_name.c_str());
+  if(!str) {
+    THROW_ERROR(server_name,"was not found in the environment");
+  }
+  return std::atoi(str);
+}
+
 std::string getComponentIp(const std::string &name) {
   if (std::getenv("IS_FROM_DOCKER")) {
     struct hostent *he;

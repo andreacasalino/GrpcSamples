@@ -17,4 +17,4 @@ private:
 };
 } // namespace carpet
 
-#define THROW_ERROR(...) throw trd::Error{__FILE__, __LINE__, __VA_ARGS__};
+#define THROW_ERROR(...) throw carpet::Error{__FILE__, __LINE__, __VA_ARGS__};

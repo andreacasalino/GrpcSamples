@@ -43,11 +43,11 @@ private:
 } // namespace carpet
 
 #define LOGE(...)                                                              \
-  trd::Logger::get().log(trd::Logger::Severity::ERROR, __FILE__, __LINE__,     \
+  carpet::Logger::get().log(carpet::Logger::Severity::ERROR, __FILE__, __LINE__,     \
                          __VA_ARGS__);
 #define LOGW(...)                                                              \
-  trd::Logger::get().log(trd::Logger::Severity::WARNING, __FILE__, __LINE__,   \
+  carpet::Logger::get().log(carpet::Logger::Severity::WARNING, __FILE__, __LINE__,   \
                          __VA_ARGS__);
 #define LOGI(...)                                                              \
-  trd::Logger::get().log(trd::Logger::Severity::INFO, __FILE__, __LINE__,      \
+  carpet::Logger::get().log(carpet::Logger::Severity::INFO, __FILE__, __LINE__,      \
                          __VA_ARGS__);
