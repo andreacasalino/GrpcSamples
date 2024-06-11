@@ -75,10 +75,10 @@ std::optional<srv::Trade> parse_trade(const std::string_view& subject) {
     parse_ids(*val.mutable_buyids(), slices.begin());
     val.set_buyprice(my_atoi(slices[2]));
     val.set_buyconsumed(slices[3] == "T");
-    parse_ids(*val.mutable_sellids(), slices.begin() + 3);
-    val.set_sellprice(my_atoi(slices[4]));
-    val.set_sellconsumed(slices[5] == "T");
-    val.set_quantity(my_atoi(slices[6]));
+    parse_ids(*val.mutable_sellids(), slices.begin() + 4);
+    val.set_sellprice(my_atoi(slices[6]));
+    val.set_sellconsumed(slices[7] == "T");
+    val.set_quantity(my_atoi(slices[8]));
     return res;
 }
 }
