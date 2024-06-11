@@ -37,7 +37,7 @@ public:
     };
     template<bool Side>
     std::optional<std::pair<PriceQuantity, srv::Ids>> getTOB() const {
-        BookSide* recipient = Side ? &buy_side : &sell_side;
+        const BookSide* recipient = Side ? &buy_side : &sell_side;
         if(recipient->orders.empty()) {
             return std::nullopt;
         }
