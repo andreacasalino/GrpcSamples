@@ -9,24 +9,28 @@ message Ids {
 
 message Order {
   bool side = 1;
-  int price = 2;
-  int quantity = 3;
+  int32 price = 2;
+  int32 quantity = 3;
 }
 
 message Trade {
   Ids buyIds = 1;
-  bool buyConsumed = 2;
-  Ids sellIds = 3;
-  bool sellConsumed = 4;
-  int price = 5;
-  int quantity = 6;
+  int32 buyPrice = 2;
+  bool buyConsumed = 3;
+
+  Ids sellIds = 4;
+  int32 sellPrice = 5;
+  bool sellConsumed = 6;
+
+  int32 quantity = 7;
 }
 
 message TOB {
   Ids buyIds = 1;
-  int buyPrice = 2;
-  int buyQuantity = 3;
+  int32 buyPrice = 2;
+  int32 buyQuantity = 3;
+
   Ids sellIds = 4;
-  int sellPrice = 5;
-  int sellQuantity = 6;
+  int32 sellPrice = 5;
+  int32 sellQuantity = 6;
 }
