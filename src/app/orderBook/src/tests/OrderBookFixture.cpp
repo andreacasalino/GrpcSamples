@@ -124,29 +124,48 @@ void OrderBookFixture::cancelOrder(const srv::Ids& ids) {
 }
 
 namespace {
-bool operator==(const srv::Ids& a, const srv::Ids& b) {
+bool compare(const srv::Ids& a, const srv::Ids& b) {
     return a.userid() == b.userid() && 
            a.orderid() == b.orderid();
 }
 
-bool operator==(const TOB& a, const TOB& b) {
+bool compare(const TOB& a, const TOB& b) {
     return a.first.price == b.first.price &&
            a.first.quantity == b.first.quantity &&
-           a.second == b.second;
+           compare(a.second, b.second);
 }
 
-bool operator==(const srv::Trade& a, const srv::Trade& b) {
-    return a.buyids() == b.buyids() &&
+bool compare(const srv::Trade& a, const srv::Trade& b) {
+    return compare(a.buyids(), b.buyids()) &&
            a.buyprice() == b.buyprice() &&
            a.buyconsumed() == b.buyconsumed() &&
-           a.sellids() == b.sellids() &&
+           compare(a.sellids(), b.sellids()) &&
            a.sellprice() == b.sellprice() &&
            a.sellconsumed() == b.sellconsumed() &&
            a.quantity() == b.quantity();
 }
+
+template<typename T>
+bool compare(const std::optional<T>& a, const std::optional<T>& b) {
+    if(a.has_value() != b.has_value()) {
+        return false;
+    }
+    if(!a.has_value()) {
+        return true;
+    }
+    return compare(a.value(), b.value());
+}
 }
 
 void OrderBookFixture::TearDown() {
-    EXPECT_EQ(history, history_expected) << "Output produced by the book is not the expected one";
+    ASSERT_EQ(history.size(), history_expected.size());
+    for(std::size_t k=0; k<history.size(); ++k) {
+        const auto& step = history[k];
+        const auto& step_expected = history_expected[k];
+        bool ok = compare(std::get<0>(step), std::get<0>(step_expected)) &&
+                  compare(std::get<1>(step), std::get<1>(step_expected)) &&
+                  compare(std::get<2>(step), std::get<2>(step_expected));
+        EXPECT_TRUE(ok);
+    }
 }
 }
