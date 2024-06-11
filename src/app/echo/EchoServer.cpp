@@ -1,25 +1,25 @@
 #include <grpcpp/grpcpp.h>
 
-#include <FooService.grpc.pb.h>
+#include <Config.h>
 
-class FooServiceImpl final : public srv::FooService::Service {
+#include <EchoService.grpc.pb.h>
+
+
+class EchoServiceImpl final : public srv::EchoService::Service {
 public:
-    ::grpc::Status GiveMeAFoo(::grpc::ServerContext* context
-                              ,const ::srv::FooRequest* request
-                              , ::srv::FooResponse* response) final {
-        auto* payload = response->mutable_payload();
+    ::grpc::Status respondEcho(::grpc::ServerContext* context, const ::srv::EchoRequest* request, ::srv::EchoResponse* response) final {
         std::string resp = "Hi ";
         resp += request->name();
         resp += " from the server";
-        payload->set_name(std::move(resp));
+        response->set_payload(std::move(resp));
         return ::grpc::Status::OK;
     }
 };
 
 int main() {
-    FooServiceImpl service;
+    EchoServiceImpl service;
 
-    std::string server_address{"0.0.0.0:50051"};
+    std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
     ::grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, ::grpc::InsecureServerCredentials());
     builder.RegisterService(&service);

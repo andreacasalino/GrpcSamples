@@ -7,12 +7,16 @@
 #include <sys/socket.h>
 
 namespace carpet {
-int getPortFromEnv(const std::string& server_name) {
-  const auto* str = std::getenv(server_name.c_str());
+int getPortFromEnv(const std::string& port_env_name) {
+  const auto* str = std::getenv(port_env_name.c_str());
   if(!str) {
-    THROW_ERROR(server_name,"was not found in the environment");
+    THROW_ERROR(port_env_name,"was not found in the environment");
   }
   return std::atoi(str);
+}
+
+std::string getAddressFromEnv(const std::string& host, const std::string& port_env_name) {
+  return host + std::to_string(getPortFromEnv(port_env_name));
 }
 
 std::string getComponentIp(const std::string &name) {

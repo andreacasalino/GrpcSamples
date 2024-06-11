@@ -1,5 +1,7 @@
 #include <grpcpp/grpcpp.h>
 
+#include <Config.h>
+
 #include <EchoService.grpc.pb.h>
 
 class GreeterClient {
@@ -8,17 +10,17 @@ public:
       : stub_(srv::EchoService::NewStub(channel)) {}
 
   std::string request() {
-    srv::FooRequest request;
+    srv::EchoRequest request;
     request.set_name("Pinco");
-    srv::FooResponse response;
+    srv::EchoResponse response;
     ::grpc::ClientContext ctxt;
 
-    ::grpc::Status status = stub_->GiveMeAFoo(&ctxt, request, &response);
+    ::grpc::Status status = stub_->respondEcho(&ctxt, request, &response);
 
     if (!status.ok()) {
       throw std::runtime_error{"Failed"};
     }
-    return response.mutable_payload()->name();
+    return response.payload();
   }
 
 private:
@@ -26,7 +28,8 @@ private:
 };
 
 int main() {
-  GreeterClient client{::grpc::CreateChannel("0.0.0.0:50051", grpc::InsecureChannelCredentials())};
+  std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
+  GreeterClient client{::grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials())};
 
   std::cout << client.request() << std::endl;
 
