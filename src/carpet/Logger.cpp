@@ -3,7 +3,7 @@
 #include <ctime>
 #include <time.h>
 
-namespace trd {
+namespace carpet {
 Logger &Logger::get() {
   static Logger res = Logger{};
   return res;
@@ -44,4 +44,4 @@ std::ostream &operator<<(std::ostream &s, const TimeNow &subject) {
     << ':' << NumberWrapper{subject.seconds};
   return s;
 }
-} // namespace trd
+} // namespace carpet

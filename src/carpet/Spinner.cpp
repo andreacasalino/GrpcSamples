@@ -2,7 +2,7 @@
 
 #include <thread>
 
-namespace trd {
+namespace carpet {
 void Spinner::run(const std::chrono::milliseconds &poll_time) {
   while (!pollables.empty()) {
     auto tic = std::chrono::high_resolution_clock::now();
@@ -27,4 +27,4 @@ void Spinner::run(const std::chrono::milliseconds &poll_time) {
     }
   }
 }
-} // namespace trd
+} // namespace carpet

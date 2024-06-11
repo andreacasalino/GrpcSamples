@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-namespace trd {
+namespace carpet {
 class Error : public std::runtime_error {
 public:
   template <typename... ARGS>
@@ -15,6 +15,6 @@ public:
 private:
   static std::string make_preamble(std::string file, int line);
 };
-} // namespace trd
+} // namespace carpet
 
 #define THROW_ERROR(...) throw trd::Error{__FILE__, __LINE__, __VA_ARGS__};

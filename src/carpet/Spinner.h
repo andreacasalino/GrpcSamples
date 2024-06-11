@@ -6,7 +6,7 @@
 #include <list>
 #include <memory>
 
-namespace trd {
+namespace carpet {
 using PollablePtr = std::unique_ptr<Pollable>;
 
 class Spinner {
@@ -32,4 +32,4 @@ private:
   std::list<PollablePtr> pollables;
   std::list<PollablePtr> new_pollables_queue;
 };
-} // namespace trd
+} // namespace carpet

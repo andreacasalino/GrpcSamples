@@ -7,7 +7,7 @@
 #include <functional>
 #include <optional>
 
-namespace trd {
+namespace carpet {
 class Periodic : public Pollable {
 public:
   template <typename PeriodT, typename Pred>
@@ -23,4 +23,4 @@ private:
   std::chrono::nanoseconds period;
   std::function<bool(Spinner &)> pred;
 };
-} // namespace trd
+} // namespace carpet

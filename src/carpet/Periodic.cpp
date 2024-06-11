@@ -1,6 +1,6 @@
 #include <Periodic.h>
 
-namespace trd {
+namespace carpet {
 bool Periodic::poll(Spinner &caller) {
   auto now = std::chrono::high_resolution_clock::now();
   if (!last_shot.has_value() ||
@@ -11,4 +11,4 @@ bool Periodic::poll(Spinner &caller) {
   }
   return true;
 }
-} // namespace trd
+} // namespace carpet

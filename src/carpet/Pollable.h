@@ -1,6 +1,6 @@
 #pragma once
 
-namespace trd {
+namespace carpet {
 class Spinner;
 
 class Pollable {
@@ -9,4 +9,4 @@ public:
 
   virtual bool poll(Spinner &caller) = 0;
 };
-} // namespace trd
+} // namespace carpet

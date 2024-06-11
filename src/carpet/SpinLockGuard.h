@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-namespace trd {
+namespace carpet {
 class SpinLockGuard {
 public:
   SpinLockGuard(std::atomic_bool &lock) : lock{lock} {
@@ -20,4 +20,4 @@ public:
 private:
   std::atomic_bool &lock;
 };
-} // namespace trd
+} // namespace carpet

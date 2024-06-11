@@ -13,7 +13,7 @@
 #include <string_view>
 #include <sys/socket.h>
 
-namespace trd {
+namespace carpet {
 std::string getComponentIp(const std::string &name) {
   if (std::getenv("IS_FROM_DOCKER")) {
     struct hostent *he;
@@ -27,4 +27,4 @@ std::string getComponentIp(const std::string &name) {
   }
   return "0.0.0.0";
 }
-} // namespace trd
+} // namespace carpet

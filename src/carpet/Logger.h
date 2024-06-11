@@ -6,7 +6,7 @@
 #include <iostream>
 #include <unordered_map>
 
-namespace trd {
+namespace carpet {
 struct TimeNow {
   static TimeNow get();
 
@@ -40,7 +40,7 @@ private:
   std::unordered_map<Severity, const char *> preambles;
 };
 
-} // namespace trd
+} // namespace carpet
 
 #define LOGE(...)                                                              \
   trd::Logger::get().log(trd::Logger::Severity::ERROR, __FILE__, __LINE__,     \

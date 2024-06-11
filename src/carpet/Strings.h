@@ -6,7 +6,7 @@
 #include <string>
 #include <string_view>
 
-namespace trd {
+namespace carpet {
 struct Strings {
   template <char Sep, typename First, typename... ARGS>
   static std::string join(First &&first, ARGS &&...others) {
@@ -63,4 +63,4 @@ private:
     recipient << el;
   }
 };
-} // namespace trd
+} // namespace carpet
