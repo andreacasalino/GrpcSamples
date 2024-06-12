@@ -4,8 +4,8 @@ carpet
 proto
 )
 
-# add_executable(EchoClient EchoClient.cpp)
-# target_link_libraries(EchoClient PUBLIC
-# carpet
-# proto
-# )
+add_executable(SimpleStreamClient SimpleStreamClient.cpp)
+target_link_libraries(SimpleStreamClient PUBLIC
+carpet
+proto
+)
