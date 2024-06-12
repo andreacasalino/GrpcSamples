@@ -49,13 +49,12 @@ private:
     }
 
     void beginNewRequest() {
-        data.emplace(context);
-        server.RequestrespondEcho(&context, &data->request, &data->responder, &queue, &queue, generateTag());
+        data.emplace();
+        server.RequestrespondEcho(&data->context, &data->request, &data->responder, &queue, &queue, generateTag());
     }
 
     srv::EchoService::AsyncService& server;
     ::grpc::ServerCompletionQueue& queue;
-    ::grpc::ServerContext context;
     std::function<srv::EchoResponse(const srv::EchoRequest& )> process_pred;
 
     bool wait_new_or_finalize = true;
@@ -66,10 +65,11 @@ private:
     }
 
     struct Data {
-        Data(::grpc::ServerContext& context) : responder{&context} {}
+        Data() = default;
 
+        ::grpc::ServerContext context;
         srv::EchoRequest request;
-        ::grpc::ServerAsyncResponseWriter<srv::EchoResponse> responder;
+        ::grpc::ServerAsyncResponseWriter<srv::EchoResponse> responder{&context};
     };
     std::optional<Data> data;
 };
