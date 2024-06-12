@@ -15,6 +15,15 @@ public:
         response->set_payload(std::move(resp));
         return ::grpc::Status::OK;
     }
+
+    ::grpc::Status respondAnotherEcho(::grpc::ServerContext* context, const ::srv::EchoRequest* request, ::srv::EchoResponse* response) final {
+        LOGI("Responding to", request->name());
+        std::string resp = "Hi ";
+        resp += request->name();
+        resp += " from the server, but another echo ...";
+        response->set_payload(std::move(resp));
+        return ::grpc::Status::OK;
+    }
 };
 
 int main() {

@@ -28,6 +28,19 @@ int main() {
         ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){
             server.RequestrespondEcho(&data.context, &data.request, &data.responder, &queue, &queue, tag);
         });
+    server->addRPC<srv::EchoRequest, srv::EchoResponse>(
+        [](const srv::EchoRequest& request, srv::EchoResponse& response){
+            LOGI("Responding to", request.name());
+            std::string resp = "Hi ";
+            resp += request.name();
+            resp += " from the server, but another echo ...";
+            response.set_payload(std::move(resp));
+        },
+        [](srv::EchoService::AsyncService& server,
+        srv::AsyncHandlerData<srv::EchoRequest, srv::EchoResponse>& data, 
+        ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){
+            server.RequestrespondAnotherEcho(&data.context, &data.request, &data.responder, &queue, &queue, tag);
+        });
 
     carpet::Spinner{
         std::make_unique<carpet::PredicatePollable>([server = server](carpet::Spinner&) {

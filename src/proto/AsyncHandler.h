@@ -88,7 +88,6 @@ Tag* AsyncHandler<ServiceT, RequestT, ResponseT>::progress() {
 template<typename ServiceT, typename RequestT, typename ResponseT>
 void AsyncHandler<ServiceT, RequestT, ResponseT>::beginNewRequest() {
     data.emplace();
-    // server.RequestrespondEcho(&data->context, &data->request, &data->responder, &queue, &queue, generateTag());
     begin_new_pred(server, data.value(), queue, generateTag());
 }
 

@@ -10,13 +10,27 @@ public:
   GreeterClient(std::shared_ptr<::grpc::Channel> channel)
       : stub_(srv::EchoService::NewStub(channel)) {}
 
-  std::string request() {
+  std::string doEcho() {
     srv::EchoRequest request;
     request.set_name("Pinco");
     srv::EchoResponse response;
     ::grpc::ClientContext ctxt;
 
     ::grpc::Status status = stub_->respondEcho(&ctxt, request, &response);
+
+    if (!status.ok()) {
+      throw std::runtime_error{"Failed"};
+    }
+    return response.payload();
+  }
+
+  std::string doAnotherEcho() {
+    srv::EchoRequest request;
+    request.set_name("Pinco");
+    srv::EchoResponse response;
+    ::grpc::ClientContext ctxt;
+
+    ::grpc::Status status = stub_->respondAnotherEcho(&ctxt, request, &response);
 
     if (!status.ok()) {
       throw std::runtime_error{"Failed"};
@@ -33,7 +47,8 @@ int main() {
   LOGI("Connecting to:", server_address);
   GreeterClient client{::grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials())};
 
-  LOGI("Responded:", client.request());
+  LOGI("Responded:", client.doEcho());
+  LOGI("Responded another:", client.doAnotherEcho());
 
   return EXIT_SUCCESS;
 }
