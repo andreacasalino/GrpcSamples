@@ -40,7 +40,8 @@ ENV PATH="/usr/local/bin:${PATH}"
 
 ENV IS_FROM_DOCKER 1
 ENV ECHO_SERVER_PORT 44332
-ENV ORDER_BOOK_SERVER_PORT 44333
+ENV STREAM_SERVER_PORT 44333
+ENV ORDER_BOOK_SERVER_PORT 44334
 
 ####################################################################################################
 ####################################################################################################

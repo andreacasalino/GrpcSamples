@@ -21,12 +21,11 @@ int main() {
     EchoServiceImpl service;
 
     std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
-    LOGI("Binding port at:", server_address);
     ::grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, ::grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
     std::unique_ptr<::grpc::Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
+    LOGI("Listening at port:", server_address);
     server->Wait();
 
     return EXIT_SUCCESS;

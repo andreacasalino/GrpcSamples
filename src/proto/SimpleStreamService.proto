@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package srv;
+
+message StreamRequest {
+  string cathegory = 1;
+}
+
+message AllCathegoriesRequest {
+  string cathegory = 1;
+}
+
+message Cathegory {
+  string name = 1;
+}
+
+message Person {
+  string name = 1;
+  string surname = 2;
+}
+
+service SimpleStreamService {
+  rpc allCathegories(AllCathegoriesRequest) returns (stream Cathegory);
+  rpc allPeopleInCathegory(StreamRequest) returns (stream Person);
+}
