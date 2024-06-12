@@ -30,28 +30,12 @@ public:
 
     template<typename ProcessPredT, typename BeginReceivePredT>
     static std::pair<Tag*, std::function<Tag*()>> make(ServiceT::AsyncService& s, ::grpc::ServerCompletionQueue& q, 
-                                            ProcessPredT&& proc, BeginReceivePredT&& begin) {
-        using Handler = AsyncHandler<ServiceT, RequestT, ResponseT>;
-        std::shared_ptr<Handler> progress;
-        progress.reset(new Handler{s, q, std::forward<ProcessPredT>(proc), std::forward<BeginReceivePredT>(begin)});
-        Tag* start_tag = progress->tag.get();
-        return std::make_pair(start_tag, [progress = progress](){
-            return progress->progress();
-        });
-    }
+                                            ProcessPredT&& proc, BeginReceivePredT&& begin);
 
 private:
     template<typename ProcessPredT, typename BeginReceivePredT>
     AsyncHandler(typename ServiceT::AsyncService& s, ::grpc::ServerCompletionQueue& q,
-                 ProcessPredT&& proc, BeginReceivePredT&& begin) 
-        : server{s}, queue{q}
-        , process_pred{std::forward<ProcessPredT>(proc)}
-        , begin_new_pred{std::forward<BeginReceivePredT>(begin)} {
-        if(!process_pred) {
-            THROW_ERROR("Invalid process predicate");
-        }
-        beginNewRequest();
-    }
+                 ProcessPredT&& proc, BeginReceivePredT&& begin);
 
     using Data = AsyncHandlerData<RequestT, ResponseT>;
     
@@ -70,6 +54,32 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////
+
+template<typename ServiceT, typename RequestT, typename ResponseT>
+template<typename ProcessPredT, typename BeginReceivePredT>
+AsyncHandler<ServiceT, RequestT, ResponseT>::AsyncHandler(typename ServiceT::AsyncService& s, ::grpc::ServerCompletionQueue& q,
+                ProcessPredT&& proc, BeginReceivePredT&& begin) 
+    : server{s}, queue{q}
+    , process_pred{std::forward<ProcessPredT>(proc)}
+    , begin_new_pred{std::forward<BeginReceivePredT>(begin)} {
+    if(!process_pred) {
+        THROW_ERROR("Invalid process predicate");
+    }
+    beginNewRequest();
+}
+
+template<typename ServiceT, typename RequestT, typename ResponseT>
+template<typename ProcessPredT, typename BeginReceivePredT>
+std::pair<Tag*, std::function<Tag*()>> AsyncHandler<ServiceT, RequestT, ResponseT>::make(ServiceT::AsyncService& s, ::grpc::ServerCompletionQueue& q, 
+                                        ProcessPredT&& proc, BeginReceivePredT&& begin) {
+    using Handler = AsyncHandler<ServiceT, RequestT, ResponseT>;
+    std::shared_ptr<Handler> progress;
+    progress.reset(new Handler{s, q, std::forward<ProcessPredT>(proc), std::forward<BeginReceivePredT>(begin)});
+    Tag* start_tag = progress->tag.get();
+    return std::make_pair(start_tag, [progress = progress](){
+        return progress->progress();
+    });
+}
 
 template<typename ServiceT, typename RequestT, typename ResponseT>
 Tag* AsyncHandler<ServiceT, RequestT, ResponseT>::progress() {
