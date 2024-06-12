@@ -29,7 +29,7 @@ public:
     Tag* progress();
 
     template<typename ProcessPredT, typename BeginReceivePredT>
-    std::pair<Tag*, std::function<Tag*()>> make(ServiceT::AsyncService& s, ::grpc::ServerCompletionQueue& q, 
+    static std::pair<Tag*, std::function<Tag*()>> make(ServiceT::AsyncService& s, ::grpc::ServerCompletionQueue& q, 
                                             ProcessPredT&& proc, BeginReceivePredT&& begin) {
         using Handler = AsyncHandler<ServiceT, RequestT, ResponseT>;
         std::shared_ptr<Handler> progress;
@@ -75,7 +75,7 @@ template<typename ServiceT, typename RequestT, typename ResponseT>
 Tag* AsyncHandler<ServiceT, RequestT, ResponseT>::progress() {
     if(wait_new_or_finalize) {
         ResponseT reply;
-        process_pred(reply, data->request);
+        process_pred(data->request, reply);
         data->responder.Finish(std::move(reply), ::grpc::Status::OK, generateTag());
     }
     else {
