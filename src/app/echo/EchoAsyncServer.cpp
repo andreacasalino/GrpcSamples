@@ -134,7 +134,7 @@ int main() {
 
     carpet::Spinner{
         std::make_unique<Server>(server_address),
-        std::make_unique<carpet::Periodic>(std::chrono::milliseconds{250}, [](carpet::Spinner& ){
+        std::make_unique<carpet::Periodic>(std::chrono::seconds{1}, [](carpet::Spinner& ){
             LOGI("============>>> Hello from the timer");
             return true;
         })
