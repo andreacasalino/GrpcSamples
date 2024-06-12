@@ -9,3 +9,9 @@ target_link_libraries(SimpleStreamClient PUBLIC
 carpet
 proto
 )
+
+# add_executable(SimpleStreamAsyncServer SimpleStreamAsyncServer.cpp)
+# target_link_libraries(SimpleStreamAsyncServer PUBLIC
+# carpet
+# proto
+# )
