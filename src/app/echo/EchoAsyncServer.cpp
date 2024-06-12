@@ -51,7 +51,6 @@ private:
     void beginNewRequest() {
         data.emplace(context);
         server.RequestrespondEcho(&context, &data->request, &data->responder, &queue, &queue, generateTag());
-        wait_new_or_finalize = true;
     }
 
     srv::EchoService::AsyncService& server;
