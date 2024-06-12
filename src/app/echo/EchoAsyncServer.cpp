@@ -17,21 +17,13 @@ struct Tag {};
 class RPCProgress {
 public:
     template<typename Process>
-    static std::pair<Tag*, std::function<Tag*()>> make(srv::EchoService::AsyncService& s, ::grpc::ServerCompletionQueue& q, Process&& pred) {
-        std::unique_ptr<RPCProgress> progress = std::make_unique<RPCProgress>();
+    static std::pair<Tag*, std::function<Tag*()>> make(srv::EchoService::AsyncService& s, ::grpc::ServerCompletionQueue& q, Process&& pred){
+        std::shared_ptr<RPCProgress> progress;
+        progress.reset(new RPCProgress{s, q, std::forward<Process>(pred)});
         Tag* start_tag = progress->tag.get();
-        return std::make_pair(start_tag, [progress =std::move(progress)](){
+        return std::make_pair(start_tag, [progress = progress](){
             return progress->progress();
         });
-    }
-
-    template<typename Process>
-    RPCProgress(srv::EchoService::AsyncService& s, ::grpc::ServerCompletionQueue& q, Process&& pred) 
-        : server{s}, queue{q}, process_pred{std::forward<Process>(pred)} {
-        if(!process_pred) {
-            THROW_ERROR("Invalid process predicate");
-        }
-        beginNewRequest();
     }
 
     Tag* progress() {
@@ -47,6 +39,15 @@ public:
     }
 
 private:
+    template<typename Process>
+    RPCProgress(srv::EchoService::AsyncService& s, ::grpc::ServerCompletionQueue& q, Process&& pred) 
+        : server{s}, queue{q}, process_pred{std::forward<Process>(pred)} {
+        if(!process_pred) {
+            THROW_ERROR("Invalid process predicate");
+        }
+        beginNewRequest();
+    }
+
     void beginNewRequest() {
         data.emplace(context);
         server.RequestrespondEcho(&context, &data->request, &data->responder, &queue, &queue, generateTag());
@@ -83,7 +84,7 @@ public:
         queue = builder.AddCompletionQueue();
         server = builder.BuildAndStart();
         //set up services
-        auto&& [tag, fnct] = RPCProgress::make(service, *queue, [this](const srv::EchoRequest& req){
+        auto [tag, fnct] = RPCProgress::make(service, *queue, [this](const srv::EchoRequest& req){
             return handle(req);
         });
         requests.emplace(tag, std::move(fnct));
@@ -95,14 +96,18 @@ public:
     }
 
     bool poll(carpet::Spinner&) override {
-        void* got_tag;
+        void* got_tag = nullptr;
         bool ok = false;
-        queue->AsyncNext(&got_tag, &ok, std::chrono::milliseconds{50});
-        auto it = requests.find(reinterpret_cast<Tag*>(got_tag));
-        if(it != requests.end()) {
-            Tag* new_tag = it->second();
-            requests.emplace(new_tag, std::move(it->second));
-            requests.erase(reinterpret_cast<Tag*>(got_tag));
+        auto deadline = std::chrono::high_resolution_clock::now();
+        deadline += std::chrono::milliseconds{50};
+        auto next_status = queue->AsyncNext(&got_tag, &ok, deadline);
+        if(next_status == ::grpc::CompletionQueue::NextStatus::GOT_EVENT && ok) {
+            auto it = requests.find(reinterpret_cast<Tag*>(got_tag));
+            if(it != requests.end()) {
+                Tag* new_tag = it->second();
+                requests.emplace(new_tag, std::move(it->second));
+                requests.erase(reinterpret_cast<Tag*>(got_tag));
+            }
         }
         return true;
     }
@@ -129,8 +134,9 @@ int main() {
 
     carpet::Spinner{
         std::make_unique<Server>(server_address),
-        std::make_unique<carpet::Periodic>(std::chrono::milliseconds{250}, [](){
+        std::make_unique<carpet::Periodic>(std::chrono::milliseconds{250}, [](carpet::Spinner& ){
             LOGI("============>>> Hello from the timer");
+            return true;
         })
         }.run();
 
