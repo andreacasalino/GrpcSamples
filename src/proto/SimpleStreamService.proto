@@ -7,7 +7,6 @@ message StreamRequest {
 }
 
 message AllCathegoriesRequest {
-  string cathegory = 1;
 }
 
 message Cathegory {

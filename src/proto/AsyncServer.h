@@ -26,7 +26,7 @@ public:
 
     template<typename RequestT, typename ResponseT, typename StreamGeneratorFactoryPredT, typename SpawnPredT>
     void addStreamRPC(StreamGeneratorFactoryPredT&& proc, SpawnPredT&& spawn) {
-        AsyncHandler<ServiceT, RequestT, ResponseT>::start(service, *queue, 
+        AsyncHandlerStream<ServiceT, RequestT, ResponseT>::start(service, *queue, 
                                                            std::forward<StreamGeneratorFactoryPredT>(proc),
                                                            std::forward<SpawnPredT>(spawn),
                                                            pending_table

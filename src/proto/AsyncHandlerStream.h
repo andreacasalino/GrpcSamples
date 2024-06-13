@@ -6,21 +6,16 @@ namespace srv {
 template<typename RequestT, typename ResponseT>
 class StreamGenerator {
 public:
+    StreamGenerator(const RequestT& request): request{request} {}
+
     virtual ~StreamGenerator() = default;
     virtual std::optional<ResponseT> next() = 0;
-
-protected:
-    StreamGenerator(RequestT& request): request{request} {}
 
     const auto& getRequest() const { return request; }
 
 private:
-    RequestT& request;
+    const RequestT& request;
 };
-
-// void RequestallCathegories(::grpc::ServerContext* context, ::srv::AllCathegoriesRequest* request, ::grpc::ServerAsyncWriter< ::srv::Cathegory>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-//       ::grpc::Service::RequestAsyncServerStreaming(0, context, request, writer, new_call_cq, notification_cq, tag);
-//     }
 
 template<typename ServiceT, typename RequestT, typename ResponseT>
 class AsyncHandlerStream : public IAsyncHandler {
@@ -78,7 +73,7 @@ AsyncHandlerStream<ServiceT, RequestT, ResponseT>::AsyncHandlerStream(typename S
 
 template<typename ServiceT, typename RequestT, typename ResponseT>
 AsyncHandlerStream<ServiceT, RequestT, ResponseT>::AsyncHandlerStream(const AsyncHandlerStream& o)
-    : AsyncHandlerStream{o.server, o.gen_pred, o.process_pred, o.spawn_pred} {}
+    : AsyncHandlerStream{o.server, o.queue, o.gen_pred, o.spawn_pred} {}
 
 template<typename ServiceT, typename RequestT, typename ResponseT>
 template<typename StreamGeneratorFactoryPredT, typename SpawnPredT>
@@ -93,8 +88,8 @@ template<typename ServiceT, typename RequestT, typename ResponseT>
 void AsyncHandlerStream<ServiceT, RequestT, ResponseT>::progress(TagsTable& table) {
     if(wait_start_stream) {
         spawn(table);
+        stream_gen = (*gen_pred)(data->request);
         wait_start_stream = false;
-        stream_gen = gen_pred(data->request);
     }
     if(wait_finalize) {
         // TODO clean up if needed
@@ -104,13 +99,12 @@ void AsyncHandlerStream<ServiceT, RequestT, ResponseT>::progress(TagsTable& tabl
     auto new_tag = Tag::make();
     using Handler =  AsyncHandlerStream<ServiceT, RequestT, ResponseT>;
     std::unique_ptr<Handler> new_hndlr;
+    new_hndlr.reset(new Handler{std::move(*this)});
     if(next_msg.has_value()) {
         data->responder.Write(next_msg.value(), new_tag.get());
-        new_hndlr.reset(new Handler{std::move(*this)});
     }
     else {
         data->responder.Finish(::grpc::Status::OK, new_tag.get());
-        new_hndlr.reset(new Handler{std::move(*this)});
         new_hndlr->wait_finalize = true;
     }
     table.emplace(std::move(new_tag), std::move(new_hndlr));

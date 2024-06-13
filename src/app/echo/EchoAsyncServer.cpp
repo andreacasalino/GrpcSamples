@@ -6,7 +6,6 @@
 #include <Logger.h>
 #include <Error.h>
 #include <Spinner.h>
-#include <Pollable.h>
 #include <Periodic.h>
 #include <AsyncServer.h>
 
