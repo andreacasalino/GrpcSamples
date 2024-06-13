@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package srv;
+
+message InfStreamRequest {
+}
+
+message StreamElement {
+  string name = 1;
+}
+
+service InfStreamService {
+  rpc infStream(InfStreamRequest) returns (stream StreamElement);
+}
