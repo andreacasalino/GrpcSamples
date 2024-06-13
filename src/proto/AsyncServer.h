@@ -85,8 +85,8 @@ AsyncHandler<ServiceT, RequestT, ResponseT>::AsyncHandler(typename ServiceT::Asy
 }
 
 template<typename ServiceT, typename RequestT, typename ResponseT>
-AsyncHandler<ServiceT, RequestT, ResponseT>::AsyncHandler(const AsyncHandler& )
-    : AsyncHandler{server, queue, process_pred, spawn_pred} {}
+AsyncHandler<ServiceT, RequestT, ResponseT>::AsyncHandler(const AsyncHandler& o)
+    : AsyncHandler{o.server, o.queue, o.process_pred, o.spawn_pred} {}
 
 template<typename ServiceT, typename RequestT, typename ResponseT>
 template<typename ProgressPredT, typename SpawnPredT>
@@ -174,4 +174,11 @@ private:
     TagsTable pending_table;
 };   
 
+#define ADD_RCP(SERVER, REQUEST_T, RESPONSE_T, METHOD_NAME, LAM) \
+(SERVER).addRPC<REQUEST_T, RESPONSE_T>( \
+    LAM, \
+    [](auto& server, auto& data, \
+    ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){ \
+        server.METHOD_NAME(&data.context, &data.request, &data.responder, &queue, &queue, tag); \
+    }); 
 }

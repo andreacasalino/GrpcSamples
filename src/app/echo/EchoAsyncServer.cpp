@@ -15,30 +15,24 @@ int main() {
 
     using Server = srv::Server<srv::EchoService>;
     auto server = std::make_shared<Server>(server_address);
-    server->addRPC<srv::EchoRequest, srv::EchoResponse>(
-        [](const srv::EchoRequest& request, srv::EchoResponse& response){
-            LOGI("Responding to", request.name());
-            std::string resp = "Hi ";
-            resp += request.name();
-            resp += " from the server";
-            response.set_payload(std::move(resp));
-        },
-        [](auto& server, auto& data, 
-        ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){
-            server.RequestrespondEcho(&data.context, &data.request, &data.responder, &queue, &queue, tag);
-        });
-    server->addRPC<srv::EchoRequest, srv::EchoResponse>(
-        [](const srv::EchoRequest& request, srv::EchoResponse& response){
-            LOGI("Responding to", request.name());
-            std::string resp = "Hi ";
-            resp += request.name();
-            resp += " from the server, but another echo ...";
-            response.set_payload(std::move(resp));
-        },
-        [](auto& server, auto& data, 
-        ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){
-            server.RequestrespondAnotherEcho(&data.context, &data.request, &data.responder, &queue, &queue, tag);
-        });
+
+    ADD_RCP(*server, srv::EchoRequest, srv::EchoResponse, RequestrespondEcho,
+    [](const srv::EchoRequest& request, srv::EchoResponse& response){
+        LOGI("Responding to", request.name());
+        std::string resp = "Hi ";
+        resp += request.name();
+        resp += " from the server";
+        response.set_payload(std::move(resp));
+    });
+
+    ADD_RCP(*server, srv::EchoRequest, srv::EchoResponse, RequestrespondAnotherEcho,
+    [](const srv::EchoRequest& request, srv::EchoResponse& response){
+        LOGI("Responding to", request.name());
+        std::string resp = "Hi ";
+        resp += request.name();
+        resp += " from the server, but another echo ...";
+        response.set_payload(std::move(resp));
+    });
 
     carpet::Spinner{
         std::make_unique<carpet::PredicatePollable>([server = server](carpet::Spinner&) {
