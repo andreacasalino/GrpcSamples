@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <AsyncHandler.h>
+#include <AsyncHandlerStream.h>
 
 namespace srv {
 template<typename ServiceT>
@@ -18,6 +19,15 @@ public:
     void addRPC(ProgressPredT&& proc, SpawnPredT&& spawn) {
         AsyncHandler<ServiceT, RequestT, ResponseT>::start(service, *queue, 
                                                            std::forward<ProgressPredT>(proc),
+                                                           std::forward<SpawnPredT>(spawn),
+                                                           pending_table
+                                                           );
+    }
+
+    template<typename RequestT, typename ResponseT, typename StreamGeneratorFactoryPredT, typename SpawnPredT>
+    void addStreamRPC(StreamGeneratorFactoryPredT&& proc, SpawnPredT&& spawn) {
+        AsyncHandler<ServiceT, RequestT, ResponseT>::start(service, *queue, 
+                                                           std::forward<StreamGeneratorFactoryPredT>(proc),
                                                            std::forward<SpawnPredT>(spawn),
                                                            pending_table
                                                            );
@@ -52,6 +62,14 @@ private:
 
 #define ADD_RCP(SERVER, REQUEST_T, RESPONSE_T, METHOD_NAME, LAM) \
 (SERVER).addRPC<REQUEST_T, RESPONSE_T>( \
+    LAM, \
+    [](auto& server, auto& data, \
+    ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){ \
+        server.METHOD_NAME(&data.context, &data.request, &data.responder, &queue, &queue, tag); \
+    }); 
+
+#define ADD_STREAM_RCP(SERVER, REQUEST_T, RESPONSE_T, METHOD_NAME, LAM) \
+(SERVER).addStreamRPC<REQUEST_T, RESPONSE_T>( \
     LAM, \
     [](auto& server, auto& data, \
     ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){ \

@@ -29,6 +29,7 @@ std::unordered_map<Tag*, std::pair< IAsyncHandlerPtr , std::unique_ptr<Tag> >> t
 
 class IAsyncHandler {
 public:
+virtual ~IAsyncHandler() = default;
 virtual void progress(TagsTable& table) = 0;
 }; 
 }
