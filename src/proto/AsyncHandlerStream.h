@@ -64,8 +64,8 @@ AsyncHandlerStream<ServiceT, RequestT, ResponseT>::AsyncHandlerStream(typename S
                                                                       std::shared_ptr<StreamGeneratorFactoryPred> proc, std::shared_ptr<SpawnPred> spawn) 
     : server{s}, queue{q}
     , gen_pred{proc}
-    , spawn_pred{spawn}
-    , data{std::make_unique<Data>()} {
+    , spawn_pred{spawn} {
+    data.reset(new Data{});
     if(!(*gen_pred) || !(*spawn_pred)) {
         throw std::runtime_error("Invalid predicates");
     }
@@ -101,10 +101,10 @@ void AsyncHandlerStream<ServiceT, RequestT, ResponseT>::progress(TagsTable& tabl
     std::unique_ptr<Handler> new_hndlr;
     new_hndlr.reset(new Handler{std::move(*this)});
     if(next_msg.has_value()) {
-        data->responder.Write(next_msg.value(), new_tag.get());
+        new_hndlr->data->responder.Write(next_msg.value(), new_tag.get());
     }
     else {
-        data->responder.Finish(::grpc::Status::OK, new_tag.get());
+        new_hndlr->data->responder.Finish(::grpc::Status::OK, new_tag.get());
         new_hndlr->wait_finalize = true;
     }
     table.emplace(std::move(new_tag), std::move(new_hndlr));

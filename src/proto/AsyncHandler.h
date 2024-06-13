@@ -48,8 +48,8 @@ AsyncHandler<ServiceT, RequestT, ResponseT>::AsyncHandler(typename ServiceT::Asy
                                                           std::shared_ptr<ProgressPred> proc, std::shared_ptr<SpawnPred> spawn) 
     : server{s}, queue{q}
     , process_pred{proc}
-    , spawn_pred{spawn}
-    , data{std::make_unique<Data>()} {
+    , spawn_pred{spawn} {
+    data.reset(new Data{});
     if(!(*process_pred) || !(*spawn_pred)) {
         throw std::runtime_error("Invalid predicates");
     }

@@ -32,7 +32,8 @@ private:
     class CathegoriesStream : public srv::StreamGenerator<srv::AllCathegoriesRequest, srv::Cathegory> {
     public:
         CathegoriesStream(const srv::AllCathegoriesRequest& req, const Data& data) 
-        : srv::StreamGenerator<srv::AllCathegoriesRequest, srv::Cathegory>{req}, source{data} {}
+        : srv::StreamGenerator<srv::AllCathegoriesRequest, srv::Cathegory>{req}, source{data}, cursor{source.begin()} {
+        }
 
         std::optional<srv::Cathegory> next() override {
             if(cursor == source.end()) {
@@ -52,7 +53,7 @@ private:
     class CathegoryStream : public srv::StreamGenerator<srv::StreamRequest, srv::Person> {
     public:
         CathegoryStream(const srv::StreamRequest& req, const std::vector<Person>& data) 
-        : srv::StreamGenerator<srv::StreamRequest, srv::Person>{req}, source{data} {}
+        : srv::StreamGenerator<srv::StreamRequest, srv::Person>{req}, source{data}, cursor{source.begin()} {}
 
         std::optional<srv::Person> next() override {
             if(cursor == source.end()) {
@@ -78,7 +79,8 @@ private:
 };
 
 int main() {
-    std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
+    std::string server_address = carpet::getAddressFromEnv("0.0.0.0","STREAM_SERVER_PORT");
+    LOGI("Listening at port:", server_address);
 
     carpet::Spinner{
         std::make_unique<carpet::PredicatePollable>([server = std::make_shared<ServerImpl>(server_address)](carpet::Spinner&) {
