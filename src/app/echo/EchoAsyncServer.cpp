@@ -23,8 +23,7 @@ int main() {
             resp += " from the server";
             response.set_payload(std::move(resp));
         },
-        [](srv::EchoService::AsyncService& server,
-        srv::AsyncHandlerData<srv::EchoRequest, srv::EchoResponse>& data, 
+        [](auto& server, auto& data, 
         ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){
             server.RequestrespondEcho(&data.context, &data.request, &data.responder, &queue, &queue, tag);
         });
@@ -36,8 +35,7 @@ int main() {
             resp += " from the server, but another echo ...";
             response.set_payload(std::move(resp));
         },
-        [](srv::EchoService::AsyncService& server,
-        srv::AsyncHandlerData<srv::EchoRequest, srv::EchoResponse>& data, 
+        [](auto& server, auto& data, 
         ::grpc::ServerCompletionQueue& queue, srv::Tag* tag){
             server.RequestrespondAnotherEcho(&data.context, &data.request, &data.responder, &queue, &queue, tag);
         });
