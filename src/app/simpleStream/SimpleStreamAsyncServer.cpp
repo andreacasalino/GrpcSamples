@@ -1,5 +1,6 @@
 #include <grpcpp/grpcpp.h>
-
+#include "ServerBase.h"
+#include "../Common.h"
 #include <SimpleStreamService.grpc.pb.h>
 
 #include <Config.h>
@@ -7,56 +8,63 @@
 #include <Error.h>
 #include <Spinner.h>
 #include <Periodic.h>
-#include <AsyncServer.h>
 
-#include <unordered_map>
-
-class ServerImpl : public srv::Server<srv::SimpleStreamService> {
+class Server 
+: public srv::AsyncServer<srv::SimpleStreamService::AsyncService>
+, public srv::ServerBase {
 public:
-    ServerImpl(const std::string& server_address) 
-    : srv::Server<srv::SimpleStreamService>{server_address} {
-        ADD_STREAM_RCP(*this, srv::AllCathegoriesRequest, srv::Cathegory, 
-                       RequestallCathegories, [&data = this->data](const srv::AllCathegoriesRequest& req){
-                        return std::make_unique<CathegoriesStream>(req, data);
-                       });
-        ADD_STREAM_RCP(*this, srv::StreamRequest, srv::Person, 
-                       RequestallPeopleInCathegory, [&data = this->data](const srv::StreamRequest& req){
-                        return std::make_unique<CathegoryStream>(req, data.at(req.cathegory()));
-                       });
+    Server(const std::string& address) 
+    : srv::AsyncServer<srv::SimpleStreamService::AsyncService>{address} {
+
+        new srv::StreamResponse<srv::AllCathegoriesRequest, srv::Cathegory>{
+            [this](grpc::ServerContext& ctxt, srv::AllCathegoriesRequest& req, grpc::ServerAsyncWriter<srv::Cathegory>& resp, srv::Request* tag){
+                this->RequestallCathegories(&ctxt, &req, &resp, getQueue(), getQueue(), tag);                
+            },
+            [this](const srv::AllCathegoriesRequest&){ return make_cathegories_stream(); }
+        };
+
+        new srv::StreamResponse<srv::StreamRequest, srv::Person>{
+            [this](grpc::ServerContext& ctxt, srv::StreamRequest& req, grpc::ServerAsyncWriter<srv::Person>& resp, srv::Request* tag){
+                this->RequestallPeopleInCathegory(&ctxt, &req, &resp, getQueue(), getQueue(), tag);                
+            },
+            std::bind(&Server::make_cathegory_stream, std::ref(*this), std::placeholders::_1)
+        };
+
     }
 
 private:
-    using Person = std::pair<std::string, std::string>;
-    using Data = std::unordered_map<std::string, std::vector<Person>>;
-
-    class CathegoriesStream : public srv::StreamGenerator<srv::AllCathegoriesRequest, srv::Cathegory> {
+    class CathegoriesStream : public srv::StreamResponse<srv::AllCathegoriesRequest, srv::Cathegory>::StreamProgress {
     public:
-        CathegoriesStream(const srv::AllCathegoriesRequest& req, const Data& data) 
-        : srv::StreamGenerator<srv::AllCathegoriesRequest, srv::Cathegory>{req}, source{data}, cursor{source.begin()} {
-        }
+        CathegoriesStream(std::vector<std::string>&& cat) 
+        : cathegories{std::forward<std::vector<std::string>>(cat)}
+        , cursor{cathegories.begin()} {}
 
-        std::optional<srv::Cathegory> next() override {
-            if(cursor == source.end()) {
+        std::optional<srv::Cathegory> next() final {
+            if(cursor == cathegories.end()) {
                 return std::nullopt;
             }            
             srv::Cathegory res;
-            res.set_name(cursor->first);
+            res.set_name(*cursor);
             ++cursor;
             return res;
         }
 
     private:
-        const Data& source;
-        Data::const_iterator cursor;
+        std::vector<std::string> cathegories;
+        std::vector<std::string>::const_iterator cursor;
     };
+    std::unique_ptr<CathegoriesStream> make_cathegories_stream() const {
+        return std::make_unique<CathegoriesStream>(this->ServerBase::allCathegories());
+    }
 
-    class CathegoryStream : public srv::StreamGenerator<srv::StreamRequest, srv::Person> {
+    class CathegoryStream : public srv::StreamResponse<srv::StreamRequest, srv::Person>::StreamProgress {
     public:
-        CathegoryStream(const srv::StreamRequest& req, const std::vector<Person>& data) 
-        : srv::StreamGenerator<srv::StreamRequest, srv::Person>{req}, source{data}, cursor{source.begin()} {}
+        CathegoryStream(const std::vector<srv::ServerBase::Person>& p) 
+        : persons{p}
+        , cursor{persons.begin()} {}
 
-        std::optional<srv::Person> next() override {
-            if(cursor == source.end()) {
+        std::optional<srv::Person> next() final {
+            if(cursor == persons.end()) {
                 return std::nullopt;
             }            
             srv::Person res;
@@ -67,26 +75,19 @@ private:
         }
 
     private:
-        const std::vector<Person>& source;
-        std::vector<Person>::const_iterator cursor;
+        const std::vector<srv::ServerBase::Person>& persons;
+        std::vector<srv::ServerBase::Person>::const_iterator cursor;
     };
-
-    const Data data = {
-        {"cantanti", {{"Pavarotti", "Luciano"}, {"Ligabue", "Luciano"}, {"Pausini", "Laura"}}},
-        {"filosofi", {{"Platone", "Boh"},{"Aristotele", "Boh"}, {"Socrate", "Boh"}}},
-        {"scienziati", {{"Galilei", "Galileo"} , {"DaVinci", "Leonardo"}, {"Einstein", "Albert"} }}
-    };
+    std::unique_ptr<CathegoryStream> make_cathegory_stream(const srv::StreamRequest& req) {
+        return std::make_unique<CathegoryStream>(this->ServerBase::allPeopleInCathegory(req.cathegory()));
+    }
 };
 
 int main() {
     std::string server_address = carpet::getAddressFromEnv("0.0.0.0","STREAM_SERVER_PORT");
-    LOGI("Listening at port:", server_address);
 
     carpet::Spinner{
-        std::make_unique<carpet::PredicatePollable>([server = std::make_shared<ServerImpl>(server_address)](carpet::Spinner&) {
-            server->poll();
-            return true;
-        }),
+        std::make_unique<Server>(server_address),
         std::make_unique<carpet::Periodic>(std::chrono::seconds{1}, [](carpet::Spinner& ){
             LOGI("============>>> Hello from the timer");
             return true;

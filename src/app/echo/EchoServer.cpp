@@ -26,16 +26,18 @@ public:
     }
 };
 
+std::unique_ptr<::grpc::Server> make_channel(const std::string& address, grpc::Service& implementation) {
+    LOGI("Listening at:", address);
+    ::grpc::ServerBuilder builder;
+    builder.AddListeningPort(address, ::grpc::InsecureServerCredentials());
+    builder.RegisterService(&implementation);
+    return builder.BuildAndStart();    
+}
+
 int main() {
     EchoServiceImpl service;
-
-    std::string server_address = carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT");
-    ::grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, ::grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
-    std::unique_ptr<::grpc::Server> server(builder.BuildAndStart());
-    LOGI("Listening at port:", server_address);
-    server->Wait();
+    auto channel = make_channel(carpet::getAddressFromEnv("0.0.0.0","ECHO_SERVER_PORT"), service);
+    channel->Wait();
 
     return EXIT_SUCCESS;
 }

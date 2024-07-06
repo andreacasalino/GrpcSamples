@@ -32,7 +32,7 @@ private:
 };
 
 int main() {
-  std::string server_address = carpet::getAddressFromEnv("0.0.0.0","STREAM_SERVER_PORT");
+  std::string server_address = carpet::getAddressFromEnv("0.0.0.0","INF_STREAM_SERVER_PORT");
   LOGI("Connecting to:", server_address);
 
   Client client{server_address};

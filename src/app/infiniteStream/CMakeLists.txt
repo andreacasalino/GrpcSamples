@@ -1,11 +1,3 @@
-add_executable(InfiniteStreamAsyncServer InfiniteStreamAsyncServer.cpp)
-target_link_libraries(InfiniteStreamAsyncServer PUBLIC 
-carpet
-proto
-)
-
-add_executable(InfinteStreamClient InfinteStreamClient.cpp)
-target_link_libraries(InfinteStreamClient PUBLIC
-carpet
-proto
-)
+MakeApp(InfinteStreamClient)
+MakeApp(InfiniteStreamAsyncServer)
+MakeApp(InfiniteStreamServer)

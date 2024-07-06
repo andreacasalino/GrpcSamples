@@ -11,6 +11,6 @@ project(GrpExperiment)
 option(BUILD_TESTS "" OFF)
 
 add_subdirectory(extern)
-add_subdirectory(proto)
+add_subdirectory(messages)
 add_subdirectory(carpet)
 add_subdirectory(app)

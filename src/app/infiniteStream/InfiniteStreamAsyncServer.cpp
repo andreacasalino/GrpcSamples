@@ -1,5 +1,6 @@
 #include <grpcpp/grpcpp.h>
-
+#include "../Common.h"
+#include "StreamBase.h"
 #include <InfiniteStreamService.grpc.pb.h>
 
 #include <Config.h>
@@ -7,53 +8,45 @@
 #include <Error.h>
 #include <Spinner.h>
 #include <Periodic.h>
-#include <AsyncServer.h>
 
-#include <unordered_map>
-
-class ServerImpl : public srv::Server<srv::InfStreamService> {
+class Server : public srv::AsyncServer<srv::InfStreamService::AsyncService> {
 public:
-    ServerImpl(const std::string& server_address) 
-    : srv::Server<srv::InfStreamService>{server_address} {
-        ADD_STREAM_RCP(*this, srv::InfStreamRequest, srv::StreamElement, 
-                       RequestinfStream, [](const srv::InfStreamRequest& req){
-                        return std::make_unique<InfiniteStream>(req);
-                       });
+    Server(const std::string& server_address)
+    : srv::AsyncServer<srv::InfStreamService::AsyncService>{server_address} {
+
+        new srv::StreamResponse<srv::InfStreamRequest, srv::StreamElement>{
+            [this](grpc::ServerContext& ctxt, srv::InfStreamRequest& req, grpc::ServerAsyncWriter<srv::StreamElement>& resp, srv::Request* tag){
+                this->RequestinfStream(&ctxt, &req, &resp, getQueue(), getQueue(), tag);                
+            },
+            [this](const srv::InfStreamRequest& ){
+                return std::make_unique<InfiniteCircularStream>();
+            }
+        };        
+
     }
 
 private:
-    class InfiniteStream : public srv::StreamGenerator<srv::InfStreamRequest, srv::StreamElement> {
+    class InfiniteCircularStream : public srv::StreamResponse<srv::InfStreamRequest, srv::StreamElement>::StreamProgress {
     public:
-        InfiniteStream(const srv::InfStreamRequest& r) : srv::StreamGenerator<srv::InfStreamRequest, srv::StreamElement>{r}
-                                                       , names{"Foo", "Bla", "Dummy", "Fuffa"}, cursor{names.begin()} {
-            LOGI("============>>> starting new stream");
-        }
+        InfiniteCircularStream() = default;
 
-        std::optional<srv::StreamElement> next() override {
-            if(cursor == names.end()) {
-                cursor = names.begin();
-            }            
-            srv::StreamElement res;
-            res.set_name((*cursor));
-            ++cursor;
+        std::optional<srv::StreamElement> next() final {
+            std::optional<srv::StreamElement> res;
+            *res.emplace().mutable_name() = impl.nextElement();
             return res;
         }
 
     private:
-        std::vector<std::string> names;
-        std::vector<std::string>::const_iterator cursor;
+        srv::StreamBase impl;
     };
 };
 
 int main() {
-    std::string server_address = carpet::getAddressFromEnv("0.0.0.0","STREAM_SERVER_PORT");
+    std::string server_address = carpet::getAddressFromEnv("0.0.0.0","INF_STREAM_SERVER_PORT");
     LOGI("Listening at port:", server_address);
 
     carpet::Spinner{
-        std::make_unique<carpet::PredicatePollable>([server = std::make_shared<ServerImpl>(server_address)](carpet::Spinner&) {
-            server->poll();
-            return true;
-        }),
+        std::make_unique<Server>(server_address),
         std::make_unique<carpet::Periodic>(std::chrono::seconds{1}, [](carpet::Spinner& ){
             LOGI("============>>> Hello from the timer");
             return true;
